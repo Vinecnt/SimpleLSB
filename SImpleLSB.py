@@ -49,27 +49,35 @@ def LSB_decode(stego_img, bits):
     return extract_img
 
 
-# for creating the image
-# f, axarr = plt.subplots(4, 4)
-# for x in range(1,8):
-#     stego_text = LSB_encode(cover, secret, x)
-#     extracted_text = LSB_decode(stego_text, x)
-#     x_cord = (x-1) % 4
-#     y_cord = 0
-#     if x < 5:
-#         y_cord = 1
-#     else:
-#         y_cord = 3
-#     axarr[x_cord, y_cord-1].imshow(cv2.cvtColor(stego_text, cv2.COLOR_BGR2RGB))
-#     axarr[x_cord, y_cord-1].set_title("stego, bits=" + str(x))
-#     axarr[x_cord, y_cord - 1].axis('off')
-#     axarr[x_cord, y_cord].imshow(cv2.cvtColor(extracted_text, cv2.COLOR_BGR2RGB))
-#     axarr[x_cord, y_cord].set_title("extract, bits=" + str(x))
-#     axarr[x_cord, y_cord].axis('off')
+# show how the image encodes and decodes from using 1 to 7 bits
+def from_1_to_7_bits(cover_im, secret_im):
+    # for creating the image
+    f, axarr = plt.subplots(4, 4)
+    for x in range(1,8):
+        stego_text = LSB_encode(cover_im, secret_im, x)
+        extracted_text = LSB_decode(stego_text, x)
+        x_cord = (x-1) % 4
+        y_cord = 0
+        if x < 5:
+            y_cord = 1
+        else:
+            y_cord = 3
+        axarr[x_cord, y_cord-1].imshow(cv2.cvtColor(stego_text, cv2.COLOR_BGR2RGB))
+        axarr[x_cord, y_cord-1].set_title("stego, bits=" + str(x))
+        axarr[x_cord, y_cord - 1].axis('off')
+        axarr[x_cord, y_cord].imshow(cv2.cvtColor(extracted_text, cv2.COLOR_BGR2RGB))
+        axarr[x_cord, y_cord].set_title("extract, bits=" + str(x))
+        axarr[x_cord, y_cord].axis('off')
+
+# shows why the image fails at decoding a resize stegotext (bilinear interpolation in the resize fn)
+def why_this_fails_at_resizing(cover_im, secret_im ):
+    stego_text = LSB_encode(cover_im, secret_im, 1)
+    stego_text = cv2.resize(stego_text, (stego_text.shape[1]+2, stego_text.shape[0]+2))
+    extracted_text = LSB_decode(stego_text, 1)
+    plt.imshow(cv2.cvtColor(extracted_text, cv2.COLOR_BGR2RGB))
+    plt.title("Decoding stegotext after it been resized by two pixels in both axises")
+    plt.show()
 
 
-stego_text = LSB_encode(cover, secret, 1)
-stego_text = cv2.resize(stego_text, (stego_text.shape[1]+2, stego_text.shape[0]+2))
-extracted_text = LSB_decode(stego_text, 1)
-plt.imshow(cv2.cvtColor(extracted_text, cv2.COLOR_BGR2RGB))
-plt.show()
+from_1_to_7_bits(cover, secret)
+why_this_fails_at_resizing(cover, secret)
